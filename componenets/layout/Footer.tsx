@@ -42,7 +42,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 pt-8 border-t border-primary-500/20 text-center text-sm text-gray-500">
-          © 2024 Supay. All rights reserved.
+          © 2026 Supay. All rights reserved.
         </div>
       </div>
     </footer>
