@@ -1,4 +1,3 @@
-// contexts/AuthContext.tsx
 'use client'
 
 import { createContext, useContext, useEffect, useState } from 'react'
@@ -6,9 +5,17 @@ import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
-import { Database } from '@/types/supabase'
 
-type Profile = Database['public']['Tables']['profiles']['Row']
+type Profile = {
+  id: string
+  username: string
+  email: string
+  spy_balance: number
+  is_premium: boolean
+  is_admin: boolean
+  referral_code: string
+  created_at: string
+}
 
 interface AuthContextType {
   user: User | null
@@ -18,7 +25,6 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
-  updateSpyBalance: (newBalance: number) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -77,9 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { username },
-      },
+      options: { data: { username } },
     })
 
     if (authError) throw authError
@@ -95,19 +99,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (referrer) referredById = referrer.id
       }
 
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: authData.user.id,
-          username,
-          referral_code: Math.random().toString(36).substring(2, 8).toUpperCase(),
-          referred_by: referredById,
-          spy_balance: 0,
-          earned_spy: 0,
-          deposited_spy: 0,
-        })
-
-      if (profileError) throw profileError
+      await supabase.from('profiles').insert({
+        id: authData.user.id,
+        username,
+        referral_code: Math.random().toString(36).substring(2, 8).toUpperCase(),
+        referred_by: referredById,
+      })
 
       if (referredById) {
         await supabase.rpc('handle_referral_bonus', { 
@@ -132,14 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push('/')
   }
 
-  function updateSpyBalance(newBalance: number) {
-    setProfile((prev) => prev ? { ...prev, spy_balance: newBalance } : null)
-  }
-
   return (
-    <AuthContext.Provider value={{ 
-      user, profile, isLoading, signUp, signIn, signOut, refreshProfile, updateSpyBalance 
-    }}>
+    <AuthContext.Provider value={{ user, profile, isLoading, signUp, signIn, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )
