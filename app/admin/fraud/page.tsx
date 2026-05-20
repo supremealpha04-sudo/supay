@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '../../lib/supabase/client'
 import { AlertTriangle, CheckCircle, Eye, Ban, Shield } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
