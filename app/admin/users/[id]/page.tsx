@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '../../lib/supabase/client'
 import { ArrowLeft, User, Mail, Calendar, Coins, Gem, TrendingUp, Shield } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
