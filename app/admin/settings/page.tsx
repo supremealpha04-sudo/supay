@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '../../lib/supabase/clientt'
 import { Save, RefreshCw, Shield, DollarSign, Users, Bell, Database } from 'lucide-react'
 import toast from 'react-hot-toast'
 
