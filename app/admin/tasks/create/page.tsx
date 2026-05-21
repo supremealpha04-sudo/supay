@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '../../lib/supabase/client'
 import { ArrowLeft, Save } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
