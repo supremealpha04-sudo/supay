@@ -1,13 +1,18 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { User } from '@supabase/supabase-js'
 
 type Profile = {
   id: string
   username: string
+  email: string
+  spy_balance: number
+  is_premium: boolean
   is_admin: boolean
+  referral_code: string
+  created_at: string
 }
 
 interface AuthContextType {
@@ -20,7 +25,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 const supabase = createClient()
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -28,14 +33,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null)
-      if (session?.user) fetchProfile(session.user.id)
-      else setIsLoading(false)
+      if (session?.user) {
+        fetchProfile(session.user.id)
+      } else {
+        setIsLoading(false)
+      }
     })
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
-      if (session?.user) await fetchProfile(session.user.id)
-      else setProfile(null)
+      if (session?.user) {
+        await fetchProfile(session.user.id)
+      } else {
+        setProfile(null)
+      }
       setIsLoading(false)
     })
 
@@ -43,8 +54,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   async function fetchProfile(userId: string) {
-    const { data } = await supabase.from('profiles').select('id, username, is_admin').eq('id', userId).single()
-    setProfile(data)
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (!error && data) {
+      setProfile(data)
+    }
     setIsLoading(false)
   }
 
